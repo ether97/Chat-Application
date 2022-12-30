@@ -11,8 +11,16 @@ type RoomsDisplayProps = {
 };
 
 export function RoomsDisplay({ room }: RoomsDisplayProps) {
-  const { rooms, usernames, socket, setShowRooms, currentRoom, currentUser } =
-    useSockets();
+  const {
+    rooms,
+    usernames,
+    socket,
+    setShowRooms,
+    currentRoom,
+    currentUser,
+    currentColor,
+    currentFont,
+  } = useSockets();
 
   function handleClick() {
     setShowRooms(false);
@@ -22,10 +30,18 @@ export function RoomsDisplay({ room }: RoomsDisplayProps) {
   return (
     <Button
       variant="contained"
-      sx={{ color: "white" }}
+      sx={{
+        color: "white",
+        width: "500px",
+        backgroundColor: room.color,
+        "&:hover": {
+          opacity: "0.5",
+          backgroundColor: room.color,
+        },
+      }}
       onClick={() => handleClick()}
     >
-      <h1>{room.title}</h1>
+      <h1 style={{ fontFamily: room.font }}>{room.title}</h1>
     </Button>
   );
 }

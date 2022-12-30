@@ -2,11 +2,14 @@ import { useSockets } from "../../../context/socket.context";
 import { AvatarCheck } from "./../AvatarDesign/AvatarCheck";
 
 type RoomUsers = {
-  user: string;
+  user: {
+    userID: string;
+    username: string;
+  };
 };
 
 export function RoomUsers({ user }: RoomUsers) {
-  const { usernames, rooms } = useSockets();
+  const { usernames, rooms, currentFont } = useSockets();
   return (
     <div
       style={{
@@ -17,7 +20,8 @@ export function RoomUsers({ user }: RoomUsers) {
       }}
     >
       {usernames?.map((_user) => {
-        if (_user.username === user) {
+        if (_user.userID === user.userID) {
+          console.log(`${user.username}`);
           return (
             <div
               style={{
@@ -30,8 +34,9 @@ export function RoomUsers({ user }: RoomUsers) {
               <AvatarCheck
                 icon={_user.avatar.icon}
                 color={_user.avatar.color}
+                status={_user.status}
               />
-              <p>{user}</p>
+              <p style={{ fontFamily: currentFont }}>{user.username}</p>
             </div>
           );
         }

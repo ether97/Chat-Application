@@ -1,30 +1,8 @@
 import Card from "@mui/material/Card";
 import { useRef, useEffect } from "react";
 import { useSockets } from "../../../context/socket.context";
-
-import MoodBadIcon from "@mui/icons-material/MoodBad";
-import SickIcon from "@mui/icons-material/Sick";
-import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied";
-import SentimentNeutralIcon from "@mui/icons-material/SentimentNeutral";
-import SentimentDissatisfiedIcon from "@mui/icons-material/SentimentDissatisfied";
-import FaceIcon from "@mui/icons-material/Face";
-import Face3Icon from "@mui/icons-material/Face3";
-import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
-import Face5Icon from "@mui/icons-material/Face5";
-import Avatar from "@mui/material/Avatar";
-
-import {
-  pink,
-  blue,
-  yellow,
-  green,
-  red,
-  purple,
-  amber,
-  lightGreen,
-  cyan,
-} from "@mui/material/colors";
 import { AvatarCheck } from "../AvatarDesign/AvatarCheck";
+import { Typography } from "@mui/material";
 
 type MessageProps = {
   username: string;
@@ -34,18 +12,27 @@ type MessageProps = {
 
 export default function Message({ username, message, time }: MessageProps) {
   const messageRef = useRef<HTMLDivElement>(null);
-  const { socket, usernames, messages } = useSockets();
+  const {
+    socket,
+    usernames,
+    messages,
+    rooms,
+    currentRoom,
+    currentFont,
+    currentColor,
+  } = useSockets();
 
   let newUsername;
   let icon = "";
   let color = "";
-  let disconnect = "";
+  let status = "";
 
   usernames?.map((_username) => {
     if (_username.username === username) {
       newUsername = _username.username;
       icon = _username.avatar.icon;
       color = _username.avatar.color;
+      status = _username.status;
     }
   });
 
@@ -59,28 +46,36 @@ export default function Message({ username, message, time }: MessageProps) {
       ref={messageRef}
       sx={{
         width: "100%",
-        height: "70px",
+        minHeight: "70px",
         display: "flex",
         alignItems: "center",
-        paddingLeft: "20px",
         paddingRight: "20px",
-        backgroundColor: "rgba(255,255,255,0.5)",
+        backgroundColor: "rgba(255,255,255,1)",
+        overflow: "auto",
       }}
     >
-      {message === "USER DISCONNECTED" ? (
+      {message.includes("_1_") ? (
         <div
           style={{
             width: "100%",
             display: "flex",
             justifyContent: "flex-end",
             alignItems: "center",
+            fontFamily: currentFont,
+            color: currentColor,
           }}
         >
-          <span style={{ color: "#1976d2" }}>{newUsername} DISCONNECTED</span>
-          <span style={{ color: "#1976d2" }}>&nbsp; : &nbsp;</span>
-          <span style={{ color: "#1976d2" }}>{time}</span>
+          <span style={{ fontFamily: currentFont, color: currentColor }}>
+            {username} HAS CONNECTED
+          </span>
+          <span style={{ fontFamily: currentFont, color: currentColor }}>
+            &nbsp; : &nbsp;
+          </span>
+          <span style={{ fontFamily: currentFont, color: currentColor }}>
+            {time}
+          </span>
         </div>
-      ) : message === "USER CONNECTED" ? (
+      ) : message.includes("_2_") ? (
         <div
           style={{
             width: "100%",
@@ -89,9 +84,34 @@ export default function Message({ username, message, time }: MessageProps) {
             alignItems: "center",
           }}
         >
-          <span style={{ color: "#1976d2" }}>{newUsername} CONNECTED</span>
-          <span style={{ color: "#1976d2" }}>&nbsp; : &nbsp;</span>
-          <span style={{ color: "#1976d2" }}>{time}</span>
+          <span style={{ fontFamily: currentFont, color: currentColor }}>
+            {username} HAS DISCONNECTED
+          </span>
+          <span style={{ fontFamily: currentFont, color: currentColor }}>
+            &nbsp; : &nbsp;
+          </span>
+          <span style={{ fontFamily: currentFont, color: currentColor }}>
+            {time}
+          </span>
+        </div>
+      ) : message.includes("_3_") ? (
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+          }}
+        >
+          <span style={{ fontFamily: currentFont, color: currentColor }}>
+            {username} HAS LEFT THE CHAT
+          </span>
+          <span style={{ fontFamily: currentFont, color: currentColor }}>
+            &nbsp; : &nbsp;
+          </span>
+          <span style={{ fontFamily: currentFont, color: currentColor }}>
+            {time}
+          </span>
         </div>
       ) : (
         <div
@@ -100,14 +120,48 @@ export default function Message({ username, message, time }: MessageProps) {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            padding: "10px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-            <AvatarCheck icon={icon} color={color} />
-            <div>{newUsername}&nbsp; : &nbsp;</div>
-            <div style={{ color: "black" }}>{message}</div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+
+              paddingLeft: "20px",
+            }}
+          >
+            <AvatarCheck icon={icon} color={color} status={status} />
+            <div
+              style={{
+                color: currentColor || "#1976d2",
+                fontFamily: currentFont,
+              }}
+            >
+              {newUsername}&nbsp; : &nbsp;
+            </div>
+            <div
+              style={{
+                color: currentColor || "#1976d2",
+                fontFamily: currentFont,
+                maxWidth: "850px",
+                overflowWrap: "break-word",
+              }}
+            >
+              <Typography sx={{ fontFamily: currentFont }}>
+                {message}
+              </Typography>
+            </div>
           </div>
-          <div style={{ color: "#1976d2" }}>{time}</div>
+          <div
+            style={{
+              color: currentColor || "#1976d2",
+              fontFamily: currentFont,
+            }}
+          >
+            {time}
+          </div>
         </div>
       )}
     </Card>

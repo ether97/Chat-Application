@@ -1,39 +1,28 @@
 import { useSockets } from "../context/socket.context";
-import { Container, Modal, Box, Typography, Button } from "@mui/material";
+import { Container } from "@mui/material";
 import { Input } from "./components/Input/Input";
-import Message from "./components/Message/Message";
-import { Disconnected } from "./components/Disconnected/Disconnected";
 import { UserInput } from "./components/UserInput/UserInput";
 
 import { Rooms } from "./components/Rooms/Rooms";
 import { RoomsDisplay } from "./components/Rooms/RoomsDisplay";
-import { useState, useEffect } from "react";
-import { RoomsInfo } from "./components/Rooms/RoomsInfo";
+
+import { TopLeftCurrentUser } from "./components/TopLeftCurrentUser/TopLeftCurrentUser";
+import { ButtonMenu } from "./components/ButtonMenu/ButtonMenu";
+import { MessagesRoom } from "./components/MessagesRoom/MessagesRoom";
 
 function App() {
   const {
-    messages,
-    disconnected,
-    setDisconnected,
     usernames,
     socket,
     rooms,
     currentRoom,
     showRooms,
-    setShowRooms,
     showCreateRooms,
-    setShowCreateRooms,
-    setCurrentRoom,
+    currentUser,
+    avatar,
   } = useSockets();
 
   let check;
-  let newUsername;
-
-  usernames?.map((username) => {
-    if (username.userID === currentRoom) {
-      newUsername = username.username;
-    }
-  });
 
   usernames?.map((username) => {
     if (socket.id === username.userID) {
@@ -41,7 +30,6 @@ function App() {
     }
   });
 
-  console.log(usernames);
   return (
     <Container
       sx={{
@@ -52,61 +40,18 @@ function App() {
         overflow: "auto",
         flexDirection: "column",
         gap: "20px",
-        backgroundColor: "rgba(255,255,255,0.3)",
+        backgroundColor: "rgba(255,255,255,0.2)",
       }}
     >
-      {!check && <UserInput />}
+      {avatar && <UserInput />}
 
-      {check && !showRooms && !showCreateRooms && currentRoom === "" && (
-        <Box
-          sx={{
-            display: "flex",
-            height: "200px",
-            justifyContent: "center",
-            alignItems: "center",
-            flexDirection: "column",
-            gap: "20px",
-          }}
-        >
-          <Button
-            onClick={() => {
-              setShowCreateRooms(true);
-            }}
-            sx={{
-              width: "300px",
-              borderRadius: "20px",
-              fontFamily: "Zen Dots",
-              fontSize: "1.5rem",
-              backgroundColor: "rgba(25, 118, 210, 0.5)",
-              color: "white",
-              "&&: hover": {
-                color: "black",
-              },
-            }}
-          >
-            Create Room
-          </Button>
-          <Button
-            onClick={() => {
-              setShowRooms(true);
-            }}
-            sx={{
-              width: "300px",
-              borderRadius: "20px",
-              fontFamily: "Zen Dots",
-              fontSize: "1.5rem",
-              backgroundColor: "rgba(25, 118, 210, 0.5)",
-              color: "white",
-              "&&: hover": {
-                color: "black",
-              },
-            }}
-            disabled={rooms.length === 0 ? true : false}
-          >
-            Join Room
-          </Button>
-        </Box>
-      )}
+      {currentUser && !currentRoom && <TopLeftCurrentUser />}
+
+      {currentUser &&
+        !showRooms &&
+        !showCreateRooms &&
+        currentRoom === "" &&
+        !avatar && <ButtonMenu />}
 
       {showCreateRooms && <Rooms />}
 
@@ -116,61 +61,9 @@ function App() {
           return <RoomsDisplay key={index} room={room} />;
         })}
 
-      {currentRoom !== "" && (
-        <Box
-          sx={{
-            maxHeight: "80vh",
-            overflow: "auto",
-            width: "100%",
-            backgroundColor: "transparent",
-          }}
-        >
-          <RoomsInfo />
-          <Button
-            onClick={() => {
-              setCurrentRoom("");
-            }}
-            variant="contained"
-            style={{
-              position: "absolute",
-              top: "20px",
-              right: "20px",
-              fontFamily: "Zen Dots",
-            }}
-          >
-            Leave Room
-          </Button>
-          <Box
-            sx={{
-              minHeight: "80vh",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              gap: "20px",
-              flexDirection: "column",
-              backgroundColor: "transparent",
-            }}
-          >
-            {messages?.map((message, index) => {
-              console.log(message);
-              if (message.room === currentRoom) {
-                return (
-                  <Message
-                    key={index}
-                    message={message.message}
-                    time={message.time}
-                    username={message.username}
-                  />
-                );
-              }
-            })}
-          </Box>
-        </Box>
-      )}
-      {/* {check && <UserList socketID={socket.id} />} */}
-      {currentRoom !== "" && <Input />}
+      {currentRoom !== "" && <MessagesRoom />}
 
-      {disconnected && <Disconnected />}
+      {currentRoom !== "" && <Input />}
     </Container>
   );
 }

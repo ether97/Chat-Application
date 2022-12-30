@@ -31,16 +31,26 @@ export function UserInput() {
   const [icon, setIcon] = useState<string>("");
   const [color, setColor] = useState<string>("");
 
-  const { socket, currentUser, setCurrentUser } = useSockets();
+  const { socket, currentUser, setCurrentUser, setAvatar, setShowCreateRooms } =
+    useSockets();
 
   function handleSetUsername() {
     const username = usernameRef.current?.value;
     if (!username) return;
     // addMessage(message);
     setCurrentUser(username);
+    setAvatar(false);
+
     socket.emit("USER ADDED", { username, icon, color });
 
     usernameRef.current.value = "";
+  }
+
+  function updateAvatar() {
+    // addMessage(message);
+    setAvatar(false);
+    setShowCreateRooms(false);
+    socket.emit("AVATAR UPDATED", { icon, color });
   }
 
   function handleEnter(e: React.KeyboardEvent<HTMLDivElement>) {
@@ -50,6 +60,7 @@ export function UserInput() {
 
       //   addMessage(message);
       setCurrentUser(username);
+      setAvatar(false);
 
       socket.emit("USER ADDED", { username, icon, color });
 
@@ -66,44 +77,56 @@ export function UserInput() {
         gap: "20px",
       }}
     >
-      <Card
-        sx={{
-          height: "100px",
-          width: "60%",
-          display: "flex",
-          flexDirection: "column",
-          gap: "20px",
-          alignItems: "center",
-          justifyContent: "center",
-          borderRadius: "5px",
-          backgroundColor: "#1976d2",
-        }}
-      >
-        <CssTextField
-          label="USERNAME"
-          id="custom-css-outlined-input"
+      {!currentUser && (
+        <Card
           sx={{
-            width: "80%",
-            fontFamily: "Zen Dots, cursive",
-            input: { color: "white" },
+            height: "100px",
+            width: "60%",
+            display: "flex",
+            flexDirection: "column",
+            gap: "20px",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "5px",
+            backgroundColor: "#1976d2",
           }}
-          inputRef={usernameRef}
-          onKeyDown={(e) => handleEnter(e)}
-        />
-      </Card>
+        >
+          <CssTextField
+            label="USERNAME"
+            id="custom-css-outlined-input"
+            sx={{
+              width: "80%",
+              fontFamily: "Zen Dots, cursive",
+              input: { color: "white" },
+            }}
+            inputRef={usernameRef}
+            onKeyDown={(e) => handleEnter(e)}
+          />
+        </Card>
+      )}
       <AvatarDesign
         icon={icon}
         setIcon={setIcon}
         color={color}
         setColor={setColor}
       />
-      <Button
-        sx={{ width: "60%", fontFamily: "Zen Dots, cursive", color: "white" }}
-        onClick={handleSetUsername}
-        variant="contained"
-      >
-        CREATE USER
-      </Button>
+      {!currentUser ? (
+        <Button
+          sx={{ width: "60%", fontFamily: "Zen Dots, cursive", color: "white" }}
+          onClick={handleSetUsername}
+          variant="contained"
+        >
+          CREATE USER
+        </Button>
+      ) : (
+        <Button
+          sx={{ width: "60%", fontFamily: "Zen Dots, cursive", color: "white" }}
+          onClick={updateAvatar}
+          variant="contained"
+        >
+          UPDATE AVATAR
+        </Button>
+      )}
     </Container>
   );
 }

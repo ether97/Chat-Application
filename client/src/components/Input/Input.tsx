@@ -5,29 +5,39 @@ import { useEffect, useRef } from "react";
 import { useSockets } from "../../../context/socket.context";
 import { alpha, styled } from "@mui/material/styles";
 
-const CssTextField = styled(TextField)({
-  "& label.Mui-focused": {
-    color: "white",
-  },
-  "& .MuiInput-underline:after": {
-    borderBottomColor: "white",
-  },
-  "& .MuiOutlinedInput-root": {
-    "& fieldset": {
-      borderColor: "white",
-    },
-    "&:hover fieldset": {
-      borderColor: "white",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "white",
-    },
-  },
-});
-
 export function Input() {
-  const { socket, setUsernames, usernames, currentRoom, currentUser } =
-    useSockets();
+  const {
+    socket,
+    setUsernames,
+    usernames,
+    currentRoom,
+    currentUser,
+    currentColor,
+    currentFont,
+  } = useSockets();
+
+  const CssTextField = styled(TextField)({
+    "& label.Mui-focused": {
+      color: currentColor,
+    },
+    "& .MuiInput-underline:after": {
+      borderBottomColor: "white",
+    },
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": {
+        borderColor: currentColor,
+      },
+      "&:hover fieldset": {
+        borderColor: "white",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "white",
+      },
+    },
+    "& label": {
+      color: "white",
+    },
+  });
 
   const messageRef = useRef<HTMLInputElement>(null);
 
@@ -68,21 +78,31 @@ export function Input() {
         display: "flex",
         width: "100%",
         marginBottom: "20px",
+        gap: "20px",
       }}
     >
       <CssTextField
-        label="MESSAGE"
+        label="SEND MESSAGE..."
         id="custom-css-outlined-input"
         sx={{
           width: "80%",
-          fontFamily: "Zen Dots, cursive",
-          input: { color: "white" },
+          fontFamily: currentFont,
+          input: { color: currentColor, fontFamily: currentFont },
         }}
         inputRef={messageRef}
         onKeyDown={(e) => handleEnter(e)}
+        autoFocus
       />
       <Button
-        sx={{ width: "20%", fontFamily: "Zen Dots, cursive" }}
+        sx={{
+          width: "20%",
+          fontFamily: currentFont,
+          color: "white",
+          backgroundColor: currentColor,
+          "&:hover": {
+            color: currentColor,
+          },
+        }}
         onClick={handleSendMessage}
       >
         SEND MESSAGE

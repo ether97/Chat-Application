@@ -6,9 +6,40 @@ import Card from "@mui/material/Card";
 import { RoomUsers } from "./RoomUsers";
 
 export function RoomsInfo() {
-  const { currentRoom, rooms, usernames, currentUser } = useSockets();
+  const {
+    currentRoom,
+    rooms,
+    usernames,
+    currentUser,
+    currentColor,
+    currentFont,
+    socket,
+  } = useSockets();
 
-  const filtered = rooms.filter((room) => room.title === currentRoom);
+  let roomUsers: { username: string; icon: string; color: string }[] = [];
+
+  let filtered: {
+    roomID: string;
+    color: string;
+    font: string;
+    title: string;
+    users: { userID: string; username: string }[];
+  }[] = [];
+
+  filtered = rooms.filter((room) => room.title === currentRoom);
+  // filtered.map((room) =>
+  //   room.users.map((user) => {
+  //     usernames?.map((_user) => {
+  //       if (user.username === _user.username) {
+  //         roomUsers.push({
+  //           username: user.username,
+  //           icon: _user.avatar.icon,
+  //           color: _user.avatar.color,
+  //         });
+  //       }
+  //     });
+  //   })
+  // );
   return (
     <Box
       sx={{
@@ -18,11 +49,26 @@ export function RoomsInfo() {
         display: "flex",
         flexDirection: "column",
         gap: "20px",
+        fontFamily: currentFont,
+        width: "300px",
+        color: "white",
       }}
     >
-      <h1>{currentRoom}</h1>
+      <Card
+        sx={{ backgroundColor: currentColor, width: "100%", padding: "10px" }}
+      >
+        <h1
+          style={{
+            fontFamily: currentFont,
+            color: "white",
+            textAlign: "center",
+          }}
+        >
+          {currentRoom}
+        </h1>
+      </Card>
       {usernames?.map((user, index) => {
-        if (user.username === currentUser) {
+        if (user.userID === socket.id) {
           return (
             <div
               key={index}
@@ -30,26 +76,37 @@ export function RoomsInfo() {
                 display: "flex",
                 alignItems: "center",
                 gap: "20px",
+                fontFamily: currentFont,
               }}
             >
-              <AvatarCheck color={user.avatar.color} icon={user.avatar.icon} />
-              <p>{user.username}</p>
+              <AvatarCheck
+                color={user.avatar.color}
+                icon={user.avatar.icon}
+                status={user.status}
+              />
+              <p style={{ fontFamily: currentFont }}>
+                {user.username}&nbsp;(you)
+              </p>
             </div>
           );
         }
       })}
       <Divider />
+
       <div
         style={{
           display: "flex",
           gap: "20px",
           background: "transparent",
           flexDirection: "column",
+          color: "white",
         }}
       >
-        {filtered.map((room) =>
-          room.users.map((user) => {
-            return <RoomUsers user={user} />;
+        {rooms.map((room) =>
+          room.users.map((_user) => {
+            if (room.title === currentRoom) {
+              return <RoomUsers user={_user} />;
+            }
           })
         )}
       </div>
